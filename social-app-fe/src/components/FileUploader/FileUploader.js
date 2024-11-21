@@ -9,6 +9,7 @@ const FileUploader = ({ fetchFileList, setError }) => {
     const [selectedFile, setSelectedFile] = useState(null);
     const [tags, setTags] = useState('');
     const [previewUrl, setPreviewUrl] = useState('');
+    const [isLoading, setIsLoading] = useState(false);
 
     const handleFileChange = (e) => {
         const file = e.target.files[0];
@@ -43,8 +44,12 @@ const FileUploader = ({ fetchFileList, setError }) => {
             return;
         }
 
+        setIsLoading(true);
         try {
+           
+
             await uploadFile(selectedFile, trimmedTags.join(','), token);
+
             setSelectedFile(null);
             setTags('');
             setPreviewUrl('');
@@ -56,6 +61,8 @@ const FileUploader = ({ fetchFileList, setError }) => {
             console.error('Error uploading file:', err);
             setError('Error uploading file. Please try again later.');
             alert('Error uploading file. Please try again later.');
+        } finally {
+            setIsLoading(false);
         }
     };
 
@@ -71,7 +78,7 @@ const FileUploader = ({ fetchFileList, setError }) => {
         <div className="upload-container">
             <h3>Upload File</h3>
             <div className="file-input-container">
-                <input type="file" onChange={handleFileChange} accept="image/*, video/*" />
+                <input type="file" onChange={handleFileChange} accept="image/*, video/*" disabled={isLoading} />
                 {selectedFile && (
                     <div className="selected-file-info">
                         <p>Selected: {selectedFile.name}</p>
@@ -89,9 +96,9 @@ const FileUploader = ({ fetchFileList, setError }) => {
                     )}
                 </div>
             )}
-            <input type="text" placeholder="Tags (comma-separated)" value={tags} onChange={(e) => setTags(e.target.value)} />
-            <button className="upload-button" onClick={handleFileUpload} disabled={!selectedFile}>
-                Upload
+            <input type="text" placeholder="Tags (comma-separated)" value={tags} onChange={(e) => setTags(e.target.value)} disabled={isLoading} />
+            <button className="upload-button" onClick={handleFileUpload} disabled={!selectedFile || isLoading}>
+                {isLoading ? 'Uploading...' : 'Upload'}
             </button>
         </div>
     );

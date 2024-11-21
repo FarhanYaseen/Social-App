@@ -1,0 +1,36 @@
+version: '3.8'
+
+services:
+  mongo:
+    image: mongo:6
+    container_name: mongo
+    ports:
+      - "27018:27017"
+    volumes:
+      - mongo-data:/data/db
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: root
+      MONGO_INITDB_ROOT_PASSWORD: example
+
+  backend:
+    build: ./social-app-be
+    container_name: social-app-backend
+    ports:
+      - "8080:8080"
+    environment:
+      PORT: 8080
+      MONGO_URI: mongodb://root:example@mongo:27017/
+      JWT_SECRET: 123e4567-e89b-12d3-a456-426614174000
+    depends_on:
+      - mongo
+
+  frontend:
+    build: ./social-app-fe
+    container_name: social-app-frontend
+    ports:
+      - "3000:80"
+    depends_on:
+      - backend
+
+volumes:
+  mongo-data:

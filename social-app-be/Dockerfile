@@ -1,0 +1,17 @@
+FROM node:18
+
+# Install necessary build tools
+RUN apt-get update && apt-get install -y python3 make gcc g++
+
+WORKDIR /app
+
+COPY package*.json ./
+
+# Rebuild bcrypt for the current architecture
+RUN npm install bcrypt --build-from-source
+
+COPY . .
+
+EXPOSE 8080
+
+CMD ["node", "server.js"]
