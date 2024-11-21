@@ -7,10 +7,20 @@
     box-sizing: border-box;
 }
 
+
 .logout-container {
     display: flex;
-    justify-content: flex-end;
-    padding: 12px;
+    justify-content: space-between;
+    align-items: center;
+
+}
+
+.page-name {
+    font-size: 18px;
+    font-weight: bold;
+    color: #333;
+    margin-right: auto;
+    padding-right: 15px;
 }
 
 .logout-button {
@@ -47,7 +57,7 @@
 
 .upload-container input[type="text"],
 .upload-container input[type="file"] {
-    width: 100%; 
+    width: 100%;
     box-sizing: border-box;
     padding: 10px;
     margin-top: 15px;
@@ -231,6 +241,7 @@
 }
 
 @media (max-width: 768px) {
+
     .logout-button,
     .upload-button {
         width: 100%;
@@ -254,6 +265,7 @@
 }
 
 @media (max-width: 480px) {
+
     .logout-button,
     .upload-button {
         font-size: 14px;
