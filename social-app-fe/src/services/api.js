@@ -88,7 +88,7 @@ export const updateFileOrder = async (reorderedFiles, token) => {
 
 export const generateShareableLink = async (fileId, token) => {
     try {
-        const response = await api.get(`/files/${fileId}/shareable-link`, getAuthHeaders(token));
+        const response = await api.post(`/files/${fileId}/shareable-link`, {}, getAuthHeaders(token));
         return response.data;
     } catch (error) {
         console.error(`Error generating shareable link for file ID ${fileId}:`, error.message);

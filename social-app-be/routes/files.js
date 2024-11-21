@@ -4,8 +4,8 @@ const jwt = require("jsonwebtoken");
 const fs = require("fs");
 const path = require("path");
 const File = require("../models/File");
+const { uploadSchema, reorderSchema } = require("./validations");
 
-// Middleware to verify JWT
 const verifyToken = (req, res, next) => {
     const authHeader = req.headers.authorization;
     if (!authHeader) return res.status(401).json({ message: "Access denied, no token provided" });
@@ -18,7 +18,6 @@ const verifyToken = (req, res, next) => {
     });
 };
 
-// Configure multer for file uploads
 const storage = multer.diskStorage({
     destination: (req, file, cb) => {
         const uploadPath = path.join(__dirname, "..", "uploads");
@@ -37,14 +36,18 @@ const fileFilter = (req, file, cb) => {
     const allowedMimeTypes = [
         "image/jpeg",
         "image/png",
+        "image/gif",
+        "image/webp",
         "application/pdf",
         "text/plain",
         "video/mp4",
         "video/mpeg",
         "video/quicktime",
+        "video/webm",
         "video/x-ms-wmv",
         "video/x-msvideo"
     ];
+
     if (allowedMimeTypes.includes(file.mimetype)) {
         cb(null, true);
     } else {
@@ -52,10 +55,9 @@ const fileFilter = (req, file, cb) => {
     }
 };
 
-
 const upload = multer({
     storage,
-    limits: { fileSize: 5 * 1024 * 1024 }, // Limit file size to 5MB
+    limits: { fileSize: 5 * 1024 * 1024 },
     fileFilter,
 });
 
@@ -63,18 +65,23 @@ const router = express.Router();
 
 router.post("/upload", verifyToken, upload.single("file"), async (req, res) => {
     try {
+        const { error } = uploadSchema.validate(req.body);
+        if (error) {
+            return res.status(400).json({ message: "Invalid request data", details: error.details });
+        }
 
-        if (!req.file) return res.status(400).json({ message: "No file uploaded" });
+        if (!req.file) {
+            return res.status(400).json({ message: "File type not supported or no file uploaded" });
+        }
 
         const { tags } = req.body;
-
         const newFile = new File({
             filename: req.file.filename,
             filepath: req.file.path,
             tags: tags.split(','),
         });
-        await newFile.save();
 
+        await newFile.save();
         res.status(200).json({ message: "File uploaded successfully", file: req.file.filename });
     } catch (error) {
         res.status(500).json({ message: "File upload failed", error: error.message });
@@ -91,11 +98,12 @@ router.get("/list", verifyToken, async (req, res) => {
 });
 
 router.put('/reorder', verifyToken, async (req, res) => {
-    const { reorderedFiles } = req.body;
-
-    if (!Array.isArray(reorderedFiles) || reorderedFiles.length === 0) {
-        return res.status(400).json({ error: 'Invalid input. Please provide an array of reordered files.' });
+    const { error } = reorderSchema.validate(req.body);
+    if (error) {
+        return res.status(400).json({ error: 'Invalid input. Please provide an array of reordered files.', details: error.details });
     }
+
+    const { reorderedFiles } = req.body;
 
     try {
         const bulkOperations = reorderedFiles.map((file, index) => ({
@@ -113,7 +121,6 @@ router.put('/reorder', verifyToken, async (req, res) => {
     }
 });
 
-
 router.get("/public/:filename", (req, res) => {
     const { filename } = req.params;
     const filePath = path.join(__dirname, "..", "uploads", filename);
@@ -129,18 +136,23 @@ router.get("/public/:filename", (req, res) => {
     });
 });
 
-router.get("/:id/shareable-link", async (req, res) => {
+
+router.post("/:id/shareable-link", async (req, res) => {
     const { id } = req.params;
     try {
         const file = await File.findById(id);
         if (!file) return res.status(404).json({ message: "File not found" });
 
         const link = `${req.protocol}://${req.get("host")}/api/files/public/${file.filename}`;
+        file.shareableLink = link;
+        await file.save();
+
         res.json({ link });
     } catch (error) {
         res.status(500).json({ message: "Unable to generate shareable link", error: error.message });
     }
 });
+
 
 router.post("/:id/increment-view", async (req, res) => {
     const { id } = req.params;
@@ -151,6 +163,5 @@ router.post("/:id/increment-view", async (req, res) => {
         res.status(500).json({ message: "Unable to increment view count", error: error.message });
     }
 });
-
 
 module.exports = router;

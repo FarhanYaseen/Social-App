@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useTokenContext } from '../../context/TokenContext';
-import FileOrganizer from '../../components/FileOrganizer';
+import FileOrganizer from '../../components/FileOrganizer/FileOrganizer';
 import './Dashboard.css';
 import { fetchFiles, uploadFile } from '../../services/api';
 

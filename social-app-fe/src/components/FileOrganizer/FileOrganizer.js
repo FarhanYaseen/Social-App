@@ -1,7 +1,8 @@
 import React from 'react';
 import { DragDropContext, Droppable, Draggable } from '@hello-pangea/dnd';
-import { useTokenContext } from '../context/TokenContext';
-import { incrementView, generateShareableLink, updateFileOrder } from '../services/api'
+import { useTokenContext } from '../../context/TokenContext';
+import { incrementView, generateShareableLink, updateFileOrder } from '../../services/api';
+import './FileOrganizer.css';
 
 const FileOrganizer = ({ files, setFiles }) => {
     const { token } = useTokenContext();
@@ -15,7 +16,7 @@ const FileOrganizer = ({ files, setFiles }) => {
 
         setFiles(reorderedFiles);
         try {
-            await updateFileOrder(reorderedFiles, token)
+            await updateFileOrder(reorderedFiles, token);
         } catch (error) {
             console.error('Failed to update file order:', error);
         }
@@ -23,7 +24,7 @@ const FileOrganizer = ({ files, setFiles }) => {
 
     const handleGenerateShareableLink = async (fileId) => {
         try {
-            const response = await generateShareableLink(fileId, token)
+            const response = await generateShareableLink(fileId, token);
             alert(`Shareable Link: ${response.link}`);
         } catch (error) {
             console.error('Failed to generate shareable link:', error);
@@ -32,7 +33,7 @@ const FileOrganizer = ({ files, setFiles }) => {
 
     const handleIncrementView = async (fileId) => {
         try {
-            await incrementView(fileId, token)
+            await incrementView(fileId, token);
             setFiles(prevFiles =>
                 prevFiles.map(file =>
                     file._id === fileId ? { ...file, views: file.views + 1 } : file
@@ -50,7 +51,7 @@ const FileOrganizer = ({ files, setFiles }) => {
                     <div
                         {...provided.droppableProps}
                         ref={provided.innerRef}
-                        style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}
+                        className="file-container"
                     >
                         {files.map((file, index) => (
                             <Draggable key={file._id} draggableId={String(file._id)} index={index}>
@@ -59,37 +60,26 @@ const FileOrganizer = ({ files, setFiles }) => {
                                         {...provided.draggableProps}
                                         {...provided.dragHandleProps}
                                         ref={provided.innerRef}
-                                        style={{
-                                            display: 'flex',
-                                            alignItems: 'center',
-                                            justifyContent: 'space-between',
-                                            padding: '10px',
-                                            border: '1px solid #ccc',
-                                            borderRadius: '4px',
-                                            ...provided.draggableProps.style,
-                                        }}
+                                        className="file-item"
                                     >
-                                        <div style={{ flex: 1 }}>
+                                        <div className="file-info">
                                             <strong>{file.filename}</strong>
-                                            <div style={{ fontSize: '0.85em', color: '#777' }}>
+                                            <div className="file-views">
                                                 Views: {file.views}
                                             </div>
-                                            <div style={{ fontSize: '0.85em', color: '#777' }}>
-                                                Share Token: {file.shareToken ? file.shareToken : 'None'}
-                                            </div>
                                         </div>
-                                        <div style={{ flex: 1, textAlign: 'right' }}>
+                                        <div className="file-tags">
                                             Tags: {Array.isArray(file.tags) && file.tags.length > 0 ? file.tags.join(', ') : 'None'}
                                         </div>
-                                        <div style={{ flex: 1, textAlign: 'right' }}>
+                                        <div className="file-actions">
                                             <button
-                                                style={{ marginRight: '10px', padding: '5px 10px', cursor: 'pointer' }}
+                                                className="share-link-btn"
                                                 onClick={() => handleGenerateShareableLink(file._id)}
                                             >
                                                 Share Link
                                             </button>
                                             <button
-                                                style={{ padding: '5px 10px', cursor: 'pointer' }}
+                                                className="view-btn"
                                                 onClick={() => handleIncrementView(file._id)}
                                             >
                                                 View

@@ -1,9 +1,8 @@
 import React from 'react';
-import './App.css';
 import { BrowserRouter as Router, Route, Routes, Navigate } from 'react-router-dom';
+import { TokenProvider, useTokenContext } from './context/TokenContext';
 import Dashboard from './pages/Dashboard/Dashboard';
 import Login from './pages/Login/Login';
-import { TokenProvider, useTokenContext } from './context/TokenContext';
 import Register from './pages/Register/Register';
 
 const ProtectedRoute = ({ children }) => {

@@ -22,7 +22,7 @@ const FileSchema = new mongoose.Schema({
     filepath: { type: String, required: true },
     tags: [String],
     views: { type: Number, default: 0 },
-    shareToken: { type: String },
+    shareableLink: { type: String },
 }, { timestamps: true }); 
 
 FileSchema.plugin(AutoIncrement, {
