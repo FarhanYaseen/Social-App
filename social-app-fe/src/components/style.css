@@ -1,0 +1,60 @@
+
+.file-card {
+    background: linear-gradient(135deg, #ff7e5f, #feb47b); /* Fancy gradient */
+    border-radius: 10px; /* Rounded corners */
+    padding: 20px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); /* Subtle shadow */
+    text-align: center; /* Center-align content */
+    transition: transform 0.3s, box-shadow 0.3s; /* Smooth hover effect */
+    color: white; /* Ensure text contrasts well */
+}
+
+.file-card img {
+    max-width: 100px;
+    margin-bottom: 10px;
+    cursor: pointer;
+    border-radius: 5px; /* Rounded corners for the image */
+    transition: transform 0.3s; /* Smooth hover effect */
+}
+
+.file-card h3 {
+    font-size: 1.2em;
+    margin: 10px 0;
+}
+
+.file-card p {
+    margin: 5px 0;
+    font-size: 0.9em;
+}
+
+.file-card:hover {
+    transform: scale(1.05); /* Slight zoom-in on hover */
+    box-shadow: 0 6px 10px rgba(0, 0, 0, 0.15); /* Enhanced shadow on hover */
+}
+
+.file-card img:hover {
+    transform: scale(1.1); /* Zoom-in effect for image */
+}
+
+
+.gallery-view {
+    padding: 20px;
+    display: flex;
+    flex-wrap: wrap;
+    /* Wrap items to next row if necessary */
+    justify-content: space-around;
+    /* Distribute items evenly */
+    gap: 20px;
+    /* Spacing between items */
+}
+
+.grid-view {
+    padding: 20px;
+    display: flex;
+    flex-direction: row;
+    /* Items aligned horizontally */
+    flex-wrap: wrap;
+    /* Wrap items to next row if necessary */
+    gap: 20px;
+    /* Spacing between items */
+}
