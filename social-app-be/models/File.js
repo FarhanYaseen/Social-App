@@ -1,19 +1,3 @@
-// const mongoose = require("mongoose");
-
-// const fileSchema = new mongoose.Schema({
-//     name: String,
-//     size: Number,
-//     mimeType: String,
-//     uploadDate: Date,
-//     previewLink: String,
-//     shareableLink: String,
-//     viewCount: { type: Number, default: 0 },
-// });
-
-// module.exports = mongoose.model("File", fileSchema);
-
-
-// models/File.js
 const mongoose = require('mongoose');
 const AutoIncrement = require('mongoose-sequence')(mongoose);
 
