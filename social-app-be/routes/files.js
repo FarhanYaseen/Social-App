@@ -150,9 +150,18 @@ const storage = multer.diskStorage({
     },
 });
 
-// File filter to limit file types
 const fileFilter = (req, file, cb) => {
-    const allowedMimeTypes = ["image/jpeg", "image/png", "application/pdf", "text/plain"];
+    const allowedMimeTypes = [
+        "image/jpeg",
+        "image/png",
+        "application/pdf",
+        "text/plain",
+        "video/mp4",
+        "video/mpeg",
+        "video/quicktime",
+        "video/x-ms-wmv",
+        "video/x-msvideo"
+    ];
     if (allowedMimeTypes.includes(file.mimetype)) {
         cb(null, true);
     } else {
@@ -160,7 +169,7 @@ const fileFilter = (req, file, cb) => {
     }
 };
 
-// Multer upload configuration
+
 const upload = multer({
     storage,
     limits: { fileSize: 5 * 1024 * 1024 }, // Limit file size to 5MB
@@ -169,7 +178,6 @@ const upload = multer({
 
 const router = express.Router();
 
-// Route to handle file uploads
 router.post("/upload", verifyToken, upload.single("file"), async (req, res) => {
     try {
 
@@ -190,7 +198,6 @@ router.post("/upload", verifyToken, upload.single("file"), async (req, res) => {
     }
 });
 
-// Route to list files
 router.get("/list", verifyToken, async (req, res) => {
     try {
         const files = await File.find({}).sort({ order: 1 });
