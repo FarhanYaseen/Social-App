@@ -23,13 +23,11 @@ const FileSchema = new mongoose.Schema({
     tags: [String],
     views: { type: Number, default: 0 },
     shareToken: { type: String },
-    // Remove the default order field
-}, { timestamps: true }); // Optional: add timestamps if you want createdAt and updatedAt
+}, { timestamps: true }); 
 
-// Apply the auto-increment plugin to the order field
 FileSchema.plugin(AutoIncrement, {
-    inc_field: 'order', // Use inc_field instead of order
-    start_seq: 0 // Optional: specify starting sequence number
+    inc_field: 'order',
+    start_seq: 0
 });
 
 module.exports = mongoose.model('File', FileSchema);

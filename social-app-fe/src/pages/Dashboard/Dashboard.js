@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { useTokenContext } from '../../context/TokenContext';
-import axios from 'axios';
 import FileOrganizer from '../../components/FileOrganizer';
 import './Dashboard.css';
+import { fetchFiles, uploadFile } from '../../services/api';
 
 const Dashboard = () => {
     const { token, logout } = useTokenContext();
@@ -10,6 +10,22 @@ const Dashboard = () => {
     const [fileList, setFileList] = useState([]);
     const [tags, setTags] = useState('');
     const [error, setError] = useState('');
+    const [previewUrl, setPreviewUrl] = useState('');
+
+
+    const fetchFileList = async () => {
+        try {
+            const response = await fetchFiles(token)
+            setFileList(response);
+        } catch (err) {
+            console.error('Error fetching file list:', err);
+            setError('Failed to fetch file list. Please try again later.');
+        }
+    };
+
+    useEffect(() => {
+        fetchFileList();
+    }, []);
 
     // Allowed file types
     const ALLOWED_FILE_TYPES = [
@@ -51,10 +67,12 @@ const Dashboard = () => {
     const handleFileChange = (e) => {
         const file = e.target.files[0];
         setError('');
+        setSelectedFile(null);
+        setPreviewUrl('');
+
         if (file && validateFile(file)) {
             setSelectedFile(file);
-        } else {
-            setSelectedFile(null);
+            setPreviewUrl(URL.createObjectURL(file));
         }
     };
 
@@ -79,23 +97,16 @@ const Dashboard = () => {
             return;
         }
 
-        const formData = new FormData();
-        formData.append('file', selectedFile);
-        formData.append('tags', trimmedTags.join(','));
 
         try {
-            await axios.post('http://localhost:6080/api/files/upload', formData, {
-                headers: {
-                    'Content-Type': 'multipart/form-data',
-                    Authorization: `Bearer ${token}`
-                }
-            });
+            await uploadFile(selectedFile, trimmedTags.join(','), token)
+
 
             setSelectedFile(null);
             setTags('');
+            setPreviewUrl('');
             setError('');
             await fetchFileList();
-            alert('File uploaded successfully!');
         } catch (err) {
             console.error('Error uploading file:', err);
             if (err.response) {
@@ -106,21 +117,15 @@ const Dashboard = () => {
         }
     };
 
-    const fetchFileList = async () => {
-        try {
-            const response = await axios.get('http://localhost:6080/api/files/list', {
-                headers: { Authorization: `Bearer ${token}` }
-            });
-            setFileList(response.data);
-        } catch (err) {
-            console.error('Error fetching file list:', err);
-            setError('Failed to fetch file list. Please try again later.');
-        }
-    };
 
     useEffect(() => {
-        fetchFileList();
-    }, []);
+        return () => {
+            // Revoke the preview URL to avoid memory leaks
+            if (previewUrl) {
+                URL.revokeObjectURL(previewUrl);
+            }
+        };
+    }, [previewUrl]);
 
     const handleLogout = () => logout();
 
@@ -149,6 +154,25 @@ const Dashboard = () => {
                         </div>
                     )}
                 </div>
+                {previewUrl && (
+                    <div className="preview-container">
+                        {selectedFile.type.startsWith('image/') ? (
+                            <img src={previewUrl} alt="Preview" className="file-preview" />
+                        ) : (
+                            <video
+                                src={previewUrl}
+                                type={selectedFile.type}
+                                controls
+                                className="file-preview"
+                                preload="metadata"
+                                key={previewUrl}
+                            >
+                                Your browser does not support the video tag.
+                            </video>
+
+                        )}
+                    </div>
+                )}
                 <input
                     type="text"
                     placeholder="Tags (comma-separated)"

@@ -1,19 +1,8 @@
 import React, { useState } from 'react';
-import axios from 'axios'
-import './Login.css';
 import { useTokenContext } from '../../context/TokenContext';
+import { login } from '../../services/api'
+import './Login.css';
 
-
-async function loginUser(credentials) {
-    return fetch('http://localhost:8080/api/auth/login', {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json'
-        },
-        body: JSON.stringify(credentials)
-    })
-        .then(data => data.json())
-}
 
 export default function Login() {
 
@@ -24,8 +13,8 @@ export default function Login() {
     const handleSubmit = async e => {
         e.preventDefault();
         try {
-            const res = await axios.post("http://localhost:6080/api/auth/login", { username, password });
-            setToken(res.data.token);
+            const response = await login(username, password)
+            setToken(response.token);
         } catch (error) {
             alert("Login failed");
         }

@@ -1,8 +1,8 @@
 import React, { useState } from 'react';
-import axios from 'axios'
-import '../../pages/Login/Login.css';
-import { useTokenContext } from '../../context/TokenContext';
 import { useNavigate } from 'react-router-dom';
+import { register } from '../../services/api'
+import { useTokenContext } from '../../context/TokenContext';
+import '../../pages/Login/Login.css';
 
 export default function Register() {
     const { setToken } = useTokenContext();
@@ -14,9 +14,10 @@ export default function Register() {
     const handleSubmit = async e => {
         e.preventDefault();
         try {
-            const res = await axios.post("http://localhost:6080/api/auth/register", { username, password });
-            setToken(res.data.token);
-            navigate('/login'); // Navigate to login page
+            const response = await register(username, password)
+
+            setToken(response.token);
+            navigate('/login'); 
 
         } catch (error) {
             alert("Register failed");

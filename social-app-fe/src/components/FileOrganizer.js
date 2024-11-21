@@ -1,14 +1,13 @@
 import React from 'react';
 import { DragDropContext, Droppable, Draggable } from '@hello-pangea/dnd';
-import axios from 'axios';
 import { useTokenContext } from '../context/TokenContext';
+import { incrementView, generateShareableLink, updateFileOrder } from '../services/api'
 
 const FileOrganizer = ({ files, setFiles }) => {
     const { token } = useTokenContext();
 
-
     const handleOnDragEnd = async (result) => {
-        if (!result.destination) return; 
+        if (!result.destination) return;
 
         const reorderedFiles = Array.from(files);
         const [movedItem] = reorderedFiles.splice(result.source.index, 1);
@@ -16,15 +15,34 @@ const FileOrganizer = ({ files, setFiles }) => {
 
         setFiles(reorderedFiles);
         try {
-            await axios.put('http://localhost:6080/api/files/reorder', { reorderedFiles }, {
-                headers: {
-                    Authorization: `Bearer ${token}`
-                }
-            });
+            await updateFileOrder(reorderedFiles, token)
         } catch (error) {
             console.error('Failed to update file order:', error);
         }
     };
+
+    const handleGenerateShareableLink = async (fileId) => {
+        try {
+            const response = await generateShareableLink(fileId, token)
+            alert(`Shareable Link: ${response.link}`);
+        } catch (error) {
+            console.error('Failed to generate shareable link:', error);
+        }
+    };
+
+    const handleIncrementView = async (fileId) => {
+        try {
+            await incrementView(fileId, token)
+            setFiles(prevFiles =>
+                prevFiles.map(file =>
+                    file._id === fileId ? { ...file, views: file.views + 1 } : file
+                )
+            );
+        } catch (error) {
+            console.error('Failed to increment view count:', error);
+        }
+    };
+
     return (
         <DragDropContext onDragEnd={handleOnDragEnd}>
             <Droppable droppableId="files">
@@ -63,6 +81,20 @@ const FileOrganizer = ({ files, setFiles }) => {
                                         <div style={{ flex: 1, textAlign: 'right' }}>
                                             Tags: {Array.isArray(file.tags) && file.tags.length > 0 ? file.tags.join(', ') : 'None'}
                                         </div>
+                                        <div style={{ flex: 1, textAlign: 'right' }}>
+                                            <button
+                                                style={{ marginRight: '10px', padding: '5px 10px', cursor: 'pointer' }}
+                                                onClick={() => handleGenerateShareableLink(file._id)}
+                                            >
+                                                Share Link
+                                            </button>
+                                            <button
+                                                style={{ padding: '5px 10px', cursor: 'pointer' }}
+                                                onClick={() => handleIncrementView(file._id)}
+                                            >
+                                                View
+                                            </button>
+                                        </div>
                                     </div>
                                 )}
                             </Draggable>
@@ -72,8 +104,7 @@ const FileOrganizer = ({ files, setFiles }) => {
                 )}
             </Droppable>
         </DragDropContext>
-    )
-
+    );
 };
 
 export default FileOrganizer;
