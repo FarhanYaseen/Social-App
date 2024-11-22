@@ -13,8 +13,9 @@ const FileOrganizer = ({ files, setFiles }) => {
         const reorderedFiles = Array.from(files);
         const [movedItem] = reorderedFiles.splice(result.source.index, 1);
         reorderedFiles.splice(result.destination.index, 0, movedItem);
-
+        console.log(reorderedFiles);
         setFiles(reorderedFiles);
+
         try {
             await updateFileOrder(reorderedFiles, token);
         } catch (error) {
@@ -25,12 +26,24 @@ const FileOrganizer = ({ files, setFiles }) => {
     const handleGenerateShareableLink = async (fileId) => {
         try {
             const path = `${window.location.protocol}//${window.location.hostname}${window.location.port ? ':' + window.location.port : ''}`;
-            const link = `${path}/file/${fileId}`
-            alert(`Shareable Link: ${link}`);
+            const link = `${path}/file/${fileId}`;
+            if (navigator.clipboard && navigator.clipboard.writeText) {
+                await navigator.clipboard.writeText(link);
+                alert(`Shareable Link (copied to clipboard): ${link}`);
+            } else {
+                const textArea = document.createElement('textarea');
+                textArea.value = link;
+                document.body.appendChild(textArea);
+                textArea.select();
+                document.execCommand('copy');
+                document.body.removeChild(textArea);
+                alert(`Shareable Link (copied to clipboard): ${link}`);
+            }
         } catch (error) {
             console.error('Failed to generate shareable link:', error);
         }
     };
+
     const handleIncrementView = async (fileId) => {
         try {
             await incrementView(fileId, token);

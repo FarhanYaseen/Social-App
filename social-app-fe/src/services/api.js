@@ -23,9 +23,9 @@ export const login = async (username, password) => {
     }
 };
 
-export const register = async (username, password) => {
+export const register = async (username, password, email) => {
     try {
-        const response = await api.post('/auth/register', { username, password });
+        const response = await api.post('/auth/register', { username, password, email });
         return response.data;
     } catch (error) {
         console.error('Error during registration:', error.message);
