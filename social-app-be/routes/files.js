@@ -129,13 +129,37 @@ router.get("/public/:filename", (req, res) => {
         return res.status(404).json({ message: "File not found" });
     }
 
-    res.download(filePath, err => {
-        if (err) {
-            res.status(500).json({ message: "File download failed", error: err.message });
-        }
-    });
-});
+    const stat = fs.statSync(filePath);
+    const total = stat.size;
 
+    if (req.headers.range) {
+        const range = req.headers.range;
+        const parts = range.replace(/bytes=/, "").split("-");
+        const partialstart = parts[0];
+        const partialend = parts[1];
+
+        const start = parseInt(partialstart, 10);
+        const end = partialend ? parseInt(partialend, 10) : total - 1;
+        const chunksize = end - start + 1;
+        const file = fs.createReadStream(filePath, { start, end });
+
+        res.writeHead(206, {
+            'Content-Range': `bytes ${start}-${end}/${total}`,
+            'Accept-Ranges': 'bytes',
+            'Content-Length': chunksize,
+            'Content-Type': 'video/mp4' // Adjust this according to file type
+        });
+
+        file.pipe(res);
+    } else {
+        res.writeHead(200, {
+            'Content-Length': total,
+            'Content-Type': 'video/mp4' // Adjust this according to file type
+        });
+
+        fs.createReadStream(filePath).pipe(res);
+    }
+});
 
 router.post("/:id/shareable-link", async (req, res) => {
     const { id } = req.params;
@@ -164,4 +188,16 @@ router.post("/:id/increment-view", async (req, res) => {
     }
 });
 
+
+router.post("/increment-view/:filename", async (req, res) => {
+    const { filename } = req.params;
+    try {
+        const file = await File.findOne({ filename });
+        if (!file) return res.status(404).json({ message: "File not found" });
+        await File.updateOne({ filename }, { $inc: { views: 1 } });
+        res.sendStatus(200);
+    } catch (error) {
+        res.status(500).json({ message: "Unable to increment view count", error: error.message });
+    }
+});
 module.exports = router;

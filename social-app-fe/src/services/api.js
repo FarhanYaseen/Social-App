@@ -95,3 +95,20 @@ export const generateShareableLink = async (fileId, token) => {
         throw error;
     }
 };
+
+export const fetchFileUrl = async (fileId) => {
+    return `${API_BASE_URL}/files/public/${fileId}`;
+};
+
+export const incrementViewByFileView = async (file) => {
+    try {
+        const response = await api.post(
+            `/files/increment-view/${file}`,
+            {}
+        );
+        return response.data;
+    } catch (error) {
+        console.error(`Error incrementing view for file ID ${file}:`, error.message);
+        throw error;
+    }
+};

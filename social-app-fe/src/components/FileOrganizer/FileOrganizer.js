@@ -24,13 +24,13 @@ const FileOrganizer = ({ files, setFiles }) => {
 
     const handleGenerateShareableLink = async (fileId) => {
         try {
-            const response = await generateShareableLink(fileId, token);
-            alert(`Shareable Link: ${response.link}`);
+            const path = `${window.location.protocol}//${window.location.hostname}${window.location.port ? ':' + window.location.port : ''}`;
+            const link = `${path}/file/${fileId}`
+            alert(`Shareable Link: ${link}`);
         } catch (error) {
             console.error('Failed to generate shareable link:', error);
         }
     };
-
     const handleIncrementView = async (fileId) => {
         try {
             await incrementView(fileId, token);
@@ -74,7 +74,7 @@ const FileOrganizer = ({ files, setFiles }) => {
                                         <div className="file-actions">
                                             <button
                                                 className="share-link-btn"
-                                                onClick={() => handleGenerateShareableLink(file._id)}
+                                                onClick={() => handleGenerateShareableLink(file.filename)}
                                             >
                                                 Share Link
                                             </button>

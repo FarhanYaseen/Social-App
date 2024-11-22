@@ -4,6 +4,7 @@ import { TokenProvider, useTokenContext } from './context/TokenContext';
 import Dashboard from './pages/Dashboard/Dashboard';
 import Login from './pages/Login/Login';
 import Register from './pages/Register/Register';
+import File from './pages/File/FileView';
 
 const ProtectedRoute = ({ children }) => {
   const { token } = useTokenContext();
@@ -46,6 +47,9 @@ function App() {
                 </ProtectedRoute>
               }
             />
+
+            <Route path="/file/:fileId" element={<File />} />
+
             <Route path="*" element={<Navigate to="/dashboard" replace />} />
           </Routes>
         </Router>

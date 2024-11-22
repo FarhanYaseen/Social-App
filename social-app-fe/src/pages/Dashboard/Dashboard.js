@@ -36,7 +36,7 @@ const Dashboard = () => {
             </div>
             <FileUploader fetchFileList={fetchFileList} setError={setError} />
             {error && <p className="error-message">{error}</p>}
-            <FileList files={fileList} setFiles={setFileList} />
+            {fileList?.length > 0 && <FileList files={fileList} setFiles={setFileList} />}
         </div>
     );
 };
