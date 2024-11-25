@@ -46,10 +46,7 @@ const FileUploader = ({ fetchFileList, setError }) => {
 
         setIsLoading(true);
         try {
-           
-
             await uploadFile(selectedFile, trimmedTags.join(','), token);
-
             setSelectedFile(null);
             setTags('');
             setPreviewUrl('');

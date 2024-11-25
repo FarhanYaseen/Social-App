@@ -1,11 +1,15 @@
 import React from 'react';
 import { DragDropContext, Droppable, Draggable } from '@hello-pangea/dnd';
 import { useTokenContext } from '../../context/TokenContext';
-import { incrementView, generateShareableLink, updateFileOrder } from '../../services/api';
+import { updateFileOrder } from '../../services/api';
+import { useNavigate } from 'react-router-dom';
+
 import './FileOrganizer.css';
 
 const FileOrganizer = ({ files, setFiles }) => {
     const { token } = useTokenContext();
+    const navigate = useNavigate();
+
 
     const handleOnDragEnd = async (result) => {
         if (!result.destination) return;
@@ -23,10 +27,10 @@ const FileOrganizer = ({ files, setFiles }) => {
         }
     };
 
-    const handleGenerateShareableLink = async (fileId) => {
+    const handleGenerateShareableLink = async (filename) => {
         try {
             const path = `${window.location.protocol}//${window.location.hostname}${window.location.port ? ':' + window.location.port : ''}`;
-            const link = `${path}/file/${fileId}`;
+            const link = `${path}/file/${filename}`;
             if (navigator.clipboard && navigator.clipboard.writeText) {
                 await navigator.clipboard.writeText(link);
                 alert(`Shareable Link (copied to clipboard): ${link}`);
@@ -44,17 +48,8 @@ const FileOrganizer = ({ files, setFiles }) => {
         }
     };
 
-    const handleIncrementView = async (fileId) => {
-        try {
-            await incrementView(fileId, token);
-            setFiles(prevFiles =>
-                prevFiles.map(file =>
-                    file._id === fileId ? { ...file, views: file.views + 1 } : file
-                )
-            );
-        } catch (error) {
-            console.error('Failed to increment view count:', error);
-        }
+    const handleView = async (filename) => {
+        navigate(`/file/${filename}`);
     };
 
     return (
@@ -93,7 +88,7 @@ const FileOrganizer = ({ files, setFiles }) => {
                                             </button>
                                             <button
                                                 className="view-btn"
-                                                onClick={() => handleIncrementView(file._id)}
+                                                onClick={() => handleView(file.filename)}
                                             >
                                                 View
                                             </button>
