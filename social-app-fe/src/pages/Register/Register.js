@@ -17,8 +17,8 @@ export default function Register() {
     const validateForm = () => {
         let valid = true;
         let errors = {};
-        if (!username || username.length < 3) {
-            errors.username = "Username must be at least 3 characters long";
+        if (!username || username.length < 3 || /\s/.test(username)) {
+            errors.username = "Username must be at least 3 characters long and cannot contain spaces";
             valid = false;
         }
         if (!email || !/^[\w-.]+@[\w-]+\.[a-z]{2,}$/i.test(email)) {
